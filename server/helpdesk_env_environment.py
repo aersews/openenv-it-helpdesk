@@ -24,9 +24,9 @@ class HelpdeskEnvironment(Environment):
         self._state = State(episode_id=str(uuid4()), step_count=0)
         self.reset()
         
-    def reset(self) -> HelpdeskObservation:
+    def reset(self, scenario: str = None) -> HelpdeskObservation:
         self._state = State(episode_id=str(uuid4()), step_count=0)
-        self.task_difficulty = random.choice([EASY_TASK, MEDIUM_TASK, HARD_TASK])
+        self.task_difficulty = scenario or random.choice([EASY_TASK, MEDIUM_TASK, HARD_TASK])
         self.tickets = {}
         self.system_state = {}
         self.total_reward = 0.0
@@ -74,16 +74,16 @@ class HelpdeskEnvironment(Environment):
         args = action.tool_args
         
         if tool == "get_tickets":
-            res = "Tickets:\n"
+            res = "Tickets:\\n"
             for k, v in self.tickets.items():
-                res += f"- {k}: {v['title']} (Status: {v['status']}, Dept: {v['department']})\n"
+                res += f"- {k}: {v['title']} (Status: {v['status']}, Dept: {v['department']})\\n"
             return self._make_obs(res)
             
         elif tool == "read_ticket":
             tid = args.get("ticket_id")
             if tid in self.tickets:
                 t = self.tickets[tid]
-                return self._make_obs(f"Ticket {tid}:\nTitle: {t['title']}\nBody: {t['body']}")
+                return self._make_obs(f"Ticket {tid}:\\nTitle: {t['title']}\\nBody: {t['body']}")
             return self._make_obs(f"Ticket {tid} not found.")
             
         elif tool == "assign_ticket":

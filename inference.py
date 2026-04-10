@@ -34,8 +34,8 @@ def run_agent():
             prompt = (
                 f"Observation: {obs.command_result}\n"
                 f"Tickets: {obs.open_tickets_summary}\n\n"
-                "You are an IT helpdesk agent. Resolve the tickets. Output ONLY valid JSON containing:\n"
-                "{\"tool_name\": \"...\", \"tool_args\": {...}}\n\n"
+                "You are an IT helpdesk agent. Resolve the tickets. Output exactly ONE valid JSON object per turn and no other text. Example:\n"
+                "{\"tool_name\": \"tool\", \"tool_args\": {\"arg\": \"val\"}}\n\n"
                 "Tools available:\n"
                 "- get_tickets (no args)\n"
                 "- read_ticket (args: ticket_id)\n"
@@ -49,15 +49,35 @@ def run_agent():
                 response = client.chat.completions.create(
                     model=MODEL_NAME,
                     messages=[{"role": "user", "content": prompt}],
-                    # response_format is removed because HF models may not support it universally
                 )
-                content = response.choices[0].message.content
-                # Strip potential markdown fences
-                if content.strip().startswith("```json"):
-                    content = content.replace("```json", "").replace("```", "").strip()
-                elif content.strip().startswith("```"):
-                    content = content.replace("```", "").strip()
-                action_data = json.loads(content)
+                content = response.choices[0].message.content or ""
+                print(f"[DEBUG] Raw LLM reply: {repr(content)}")
+                
+                # Try to extract from Markdown first
+                import re
+                md_match = re.search(r'```(?:json)?\s*(.*?)\s*```', content, re.DOTALL)
+                if md_match:
+                    json_candidate = md_match.group(1)
+                else:
+                    json_candidate = content
+
+                action_data = None
+                # Since Llama might output multiple json actions separated by newline
+                for line in json_candidate.split('\n'):
+                    line = line.strip()
+                    if line.startswith('{') and line.endswith('}'):
+                        try:
+                            action_data = json.loads(line)
+                            break
+                        except Exception:
+                            continue
+                
+                if not action_data:
+                    # Fallback to grabbing everything between first { and last }
+                    match = re.search(r'\{.*\}', json_candidate, re.DOTALL)
+                    json_str = match.group(0) if match else json_candidate
+                    action_data = json.loads(json_str)
+
                 action = HelpdeskAction(**action_data)
             except Exception as e:
                 action = HelpdeskAction(tool_name="error", tool_args={"error": str(e)})
