@@ -6,22 +6,29 @@ app: server.app:app
 port: 8000
 
 tasks:
-  - name: easy-laptop-slow
-    description: Resolve slow laptop by assigning to hardware_support team
-    grader: helpdesk_env.graders:grade_easy
+  - id: "task_easy"
+    name: "easy-laptop-slow"
+    description: "Resolve slow laptop by assigning to hardware_support team"
+    grader: true
     reset_args:
-      scenario: easy
+      scenario: "easy"
     max_episode_steps: 10
-  - name: medium-account-locked
-    description: Unlock johndoe account using diagnostic and restart_service
-    grader: helpdesk_env.graders:grade_medium
+  - id: "task_medium"
+    name: "medium-account-locked"
+    description: "Unlock johndoe account using diagnostic and restart_service"
+    grader: true
     reset_args:
-      scenario: medium
+      scenario: "medium"
     max_episode_steps: 12
-  - name: hard-website-down
-    description: Diagnose and restart database to fix website outage
-    grader: helpdesk_env.graders:grade_hard
+  - id: "task_hard"
+    name: "hard-website-down"
+    description: "Diagnose and restart database to fix website outage"
+    grader: true
     reset_args:
-      scenario: hard
+      scenario: "hard"
     max_episode_steps: 15
 
+evaluation:
+  grader_endpoint: "/grader"
+  tasks_endpoint: "/tasks"
+  min_tasks_with_graders: 3

@@ -43,6 +43,10 @@ except ImportError:
     from server.helpdesk_env_environment import HelpdeskEnvironment
 
 
+from fastapi import Request
+import yaml
+import os
+
 # Create the app with web interface and README integration
 app = create_app(
     HelpdeskEnvironment,
@@ -52,6 +56,27 @@ app = create_app(
     max_concurrent_envs=1,  # increase this number to allow more concurrent WebSocket sessions
 )
 
+@app.get("/tasks")
+def list_tasks():
+    yaml_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "openenv.yaml")
+    with open(yaml_path) as f:
+        config = yaml.safe_load(f)
+    return config.get("tasks", [])
+
+@app.post("/grader")
+async def evaluate_task(request: Request):
+    data = await request.json()
+    episode = data.get("episode", data)
+    
+    try:
+        from graders import _compute_score
+    except ImportError:
+        import sys
+        sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+        from graders import _compute_score
+
+    score = _compute_score(episode)
+    return {"score": score}
 
 def main():
     """
