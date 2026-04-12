@@ -7,28 +7,32 @@ port: 8000
 
 tasks:
   - id: "task_easy"
-    name: "easy-laptop-slow"
-    description: "Resolve slow laptop by assigning to hardware_support team"
-    grader: true
+    name: "Laptop Slow - Easy"
+    difficulty: "EASY"
+    scenario: "Resolve slow laptop by assigning to hardware_support team"
+    objective: "Correctly assign the task to hardware_support department. 0.5 points for diagnosis, 0.5 points for resolving."
+    passing_threshold: 0.5
+    grader: "helpdesk_env.graders:grade_easy"
     reset_args:
       scenario: "easy"
     max_episode_steps: 10
   - id: "task_medium"
-    name: "medium-account-locked"
-    description: "Unlock johndoe account using diagnostic and restart_service"
-    grader: true
+    name: "Account Locked - Medium"
+    difficulty: "MEDIUM"
+    scenario: "Unlock johndoe account using diagnostic and restart_service"
+    objective: "Unlock user account johndoe. 0.5 points for diagnosis, 0.5 points for resolving."
+    passing_threshold: 0.5
+    grader: "helpdesk_env.graders:grade_medium"
     reset_args:
       scenario: "medium"
     max_episode_steps: 12
   - id: "task_hard"
-    name: "hard-website-down"
-    description: "Diagnose and restart database to fix website outage"
-    grader: true
+    name: "Website Down - Hard"
+    difficulty: "HARD"
+    scenario: "Diagnose and restart database to fix website outage"
+    objective: "Restart the database. 0.5 points for diagnosis, 0.5 points for resolving."
+    passing_threshold: 0.5
+    grader: "helpdesk_env.graders:grade_hard"
     reset_args:
       scenario: "hard"
     max_episode_steps: 15
-
-evaluation:
-  grader_endpoint: "/grader"
-  tasks_endpoint: "/tasks"
-  min_tasks_with_graders: 3
