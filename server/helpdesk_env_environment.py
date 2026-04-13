@@ -33,16 +33,16 @@ class HelpdeskEnvironment(Environment):
         
         if self.task_difficulty == EASY_TASK:
             self.tickets = {
-                "T-1001": {"title": "Laptop very slow", "body": "My laptop is taking 10 minutes to boot.", "status": "open", "department": "unassigned"}
+                "T-1001": {"title": "Laptop very slow", "body": "My laptop is taking 10 minutes to boot. Please route this strictly to the 'hardware_support' department.", "status": "open", "department": "unassigned"}
             }
         elif self.task_difficulty == MEDIUM_TASK:
             self.tickets = {
-                "T-2001": {"title": "Account locked", "body": "I cannot login, username: johndoe.", "status": "open", "department": "unassigned"}
+                "T-2001": {"title": "Account locked", "body": "I cannot login, username: johndoe. Please diagnose 'johndoe' and restart 'johndoe_account' service.", "status": "open", "department": "unassigned"}
             }
             self.system_state["johndoe_locked"] = True
         elif self.task_difficulty == HARD_TASK:
             self.tickets = {
-                "T-3001": {"title": "Website is down!", "body": "I'm getting a 500 error on the company portal.", "status": "open", "department": "unassigned"}
+                "T-3001": {"title": "Website is down!", "body": "I'm getting a 500 error on the portal backend. Please diagnose 'database' and run restart_service on 'database'.", "status": "open", "department": "unassigned"}
             }
             self.system_state["portal_status"] = "500 Internal Server Error"
             self.system_state["db_status"] = "down"
